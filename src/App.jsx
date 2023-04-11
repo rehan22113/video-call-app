@@ -1,18 +1,6 @@
 import * as React from 'react';
-// import './style.css';
 import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
-
-// get token
-function generateToken(tokenServerUrl, userID) {
-  // Obtain the token interface provided by the App Server
-  return fetch(
-    `${tokenServerUrl}/access_token?userID=${userID}&expired_ts=7200`,
-    {
-      method: 'GET',
-    }
-  ).then((res) => res.json());
-}
-
+import './index.css'
 function randomID(len) {
   let result = '';
   if (result) return result;
@@ -27,7 +15,7 @@ function randomID(len) {
 }
 
 export function getUrlParams(
-  url= window.location.href
+  url = window.location.href
 ) {
   let urlStr = url.split('?')[1];
   return new URLSearchParams(urlStr);
@@ -36,38 +24,31 @@ export function getUrlParams(
 export default function App() {
   const roomID = getUrlParams().get('roomID') || randomID(5);
   let myMeeting = async (element) => {
-    const userID = randomID(5);
-    const userName = randomID(5);
-    // generate token
-    generateToken('https://nextjs-token.vercel.app/api', userID).then((res) => {
-      const token = ZegoUIKitPrebuilt.generateKitTokenForProduction(
-        1484647939,
-        res.token,
-        roomID,
-        userID,
-        userName
-      );
-      // create instance object from token
-      const zp = ZegoUIKitPrebuilt.create(token);
 
-      // start the call
-      zp.joinRoom({
+ // generate Kit Token
+ const appID = 761351232;
+ const serverSecret = "db8187e611e40f55543bcc72465e9f07";
+ const kitToken =  ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID,  randomID(5),  randomID(5));
+
+ // Create instance object from Kit Token.
+ const zp = ZegoUIKitPrebuilt.create(kitToken);
+ // start the call
+ zp.joinRoom({
         container: element,
         sharedLinks: [
           {
             name: 'Personal link',
             url:
-              window.location.origin +
-              window.location.pathname +
+             window.location.protocol + '//' + 
+             window.location.host + window.location.pathname +
               '?roomID=' +
               roomID,
           },
         ],
         scenario: {
-          mode: ZegoUIKitPrebuilt.VideoConference,
+         mode: ZegoUIKitPrebuilt.VideoConference,
         },
-      });
-    });
+   });
   };
 
   return (
